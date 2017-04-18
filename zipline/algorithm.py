@@ -122,6 +122,7 @@ from zipline.utils.events import (
     make_eventrule,
     date_rules,
     time_rules,
+    calendars,
     AfterOpen,
     BeforeClose
 )
@@ -1081,6 +1082,8 @@ class TradingAlgorithm(object):
             The rule for the times to execute this function.
         half_days : bool, optional
             Should this rule fire on half days?
+        calendar : Sentinel, optional
+            Calendar used to reconcile date and time rules.
 
         See Also
         --------
@@ -1106,7 +1109,12 @@ class TradingAlgorithm(object):
         # Check the type of the algorithm's schedule before pulling calendar
         # Note that the ExchangeTradingSchedule is currently the only
         # TradingSchedule class, so this is unlikely to be hit
-        cal = calendar or self.trading_calendar
+        if calendar is calendars.US_EQUITIES:
+            cal = get_calendar('NYSE')
+        elif calendar is calendars.US_FUTURES:
+            cal = get_calendar('us_futures')
+        else:
+            cal = self.trading_calendar
 
         self.add_event(
             make_eventrule(date_rule, time_rule, cal, half_days),

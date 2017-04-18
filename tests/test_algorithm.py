@@ -437,22 +437,23 @@ def handle_data(context, data):
         # run a simulation on the CME cal, and schedule a function
         # using the NYSE cal
         algotext = """
-from zipline.api import schedule_function, get_datetime, time_rules, date_rules
-from zipline.utils.calendars import get_calendar
+from zipline.api import (
+    schedule_function, get_datetime, time_rules, date_rules, calendars,
+)
 
 def initialize(context):
     schedule_function(
         func=log_nyse_open,
         date_rule=date_rules.every_day(),
         time_rule=time_rules.market_open(),
-        calendar=get_calendar("NYSE")
+        calendar=calendars.US_EQUITIES,
     )
 
     schedule_function(
         func=log_nyse_close,
         date_rule=date_rules.every_day(),
         time_rule=time_rules.market_close(),
-        calendar=get_calendar("NYSE")
+        calendar=calendars.US_EQUITIES,
     )
 
     context.nyse_opens = []
