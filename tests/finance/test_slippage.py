@@ -30,7 +30,7 @@ from zipline.finance.asset_restrictions import NoRestrictions
 from zipline.finance.order import Order
 from zipline.finance.slippage import (
     fill_price_worse_than_limit_price,
-    FuturesMarketImpact,
+    VolatilityVolumeShare,
     VolumeContractSlippage,
     VolumeShareSlippage,
     WithWindowData,
@@ -699,17 +699,17 @@ class VolumeSlippageTestCase(WithCreateBarData,
         self.assertEquals(expected_txn, txn.__dict__)
 
 
-class FuturesMarketImpactTestCase(WithCreateBarData,
-                                  WithSimParams,
-                                  WithDataPortal,
-                                  ZiplineTestCase):
+class VolatilityVolumeShareTestCase(WithCreateBarData,
+                                    WithSimParams,
+                                    WithDataPortal,
+                                    ZiplineTestCase):
 
     TRADING_CALENDAR_STRS = ('NYSE', 'us_futures')
     TRADING_CALENDAR_PRIMARY_CAL = 'us_futures'
 
     @classmethod
     def init_class_fixtures(cls):
-        super(FuturesMarketImpactTestCase, cls).init_class_fixtures()
+        super(VolatilityVolumeShareTestCase, cls).init_class_fixtures()
         cls.ASSET = cls.asset_finder.retrieve_asset(1000)
 
     @classmethod
@@ -735,8 +735,8 @@ class FuturesMarketImpactTestCase(WithCreateBarData,
     def test_calculate_impact_buy(self):
         answer_key = [
             # We ordered 10 contracts, but are capped at 100 * 0.05 = 5
-            (59805.500000840155, 5),
-            (59806.500000840169, 5),
+            (59805.5001650376, 5),
+            (59806.500165040357, 5),
             (None, None),
         ]
         self._calculate_impact(self.create_order(open_amount=10), answer_key)
@@ -744,14 +744,14 @@ class FuturesMarketImpactTestCase(WithCreateBarData,
     def test_calculate_impact_sell(self):
         answer_key = [
             # We ordered -10 contracts, but are capped at -(100 * 0.05) = -5
-            (59805.499999159845, -5),
-            (59806.499999159831, -5),
+            (59805.4998349624, -5),
+            (59806.499834959643, -5),
             (None, None),
         ]
         self._calculate_impact(self.create_order(open_amount=-10), answer_key)
 
     def _calculate_impact(self, test_order, answer_key):
-        model = FuturesMarketImpact(volume_limit=0.05)
+        model = VolatilityVolumeShare(volume_limit=0.05)
         first_minute = pd.Timestamp('2006-03-01 11:35AM', tz='UTC')
 
         next_3_minutes = self.trading_calendar.minutes_window(first_minute, 3)
@@ -764,8 +764,7 @@ class FuturesMarketImpactTestCase(WithCreateBarData,
             )
             price, amount = model.process_order(data, new_order)
 
-            # Allow for a little floating point drift.
-            self.assertAlmostEqual(price, answer_key[i][0], delta=0.01)
+            self.assertEqual(price, answer_key[i][0])
             self.assertEqual(amount, answer_key[i][1])
 
             amount = amount or 0
@@ -775,7 +774,7 @@ class FuturesMarketImpactTestCase(WithCreateBarData,
                 remaining_shares = max(0, remaining_shares - amount)
 
     def test_impacted_price_worse_than_limit(self):
-        model = FuturesMarketImpact(volume_limit=0.05)
+        model = VolatilityVolumeShare(volume_limit=0.05)
 
         # Use all the same numbers from the 'calculate_impact' tests. Since the
         # impacted price is 59805.5, which is worse than the limit price of

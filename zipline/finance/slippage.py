@@ -33,78 +33,78 @@ SQRT_252 = math.sqrt(252)
 
 DEFAULT_VOLUME_SLIPPAGE_BAR_LIMIT = 0.025
 ROOT_SYMBOL_TO_ETA = {
-    'AD': 0.01085,                 # AUD
-    'AI': 5.3940932828362259e-05,  # Bloomberg Commodity Index
-    'BD': 0.01085,                 # Big Dow
-    'BO': 0.044388564297685,       # Soybean Oil
-    'BP': 0.0118608022228357,      # GBP
-    'CD': 0.022028133461874311,    # CAD
-    'CL': 0.00023889607773542852,  # Crude Oil
-    'CM': 0.01085,                 # Corn e-mini
-    'CN': 0.0040189453265766948,   # Corn
-    'DJ': 1.4801315557505622e-07,  # Dow Jones
-    'EC': 0.016849560390504958,    # Euro FX
-    'ED': 4.9986500000055755e-05,  # Eurodollar
-    'EE': 0.012533634891032238,    # Euro FX e-mini
-    'EI': 4.8833955866745614e-06,  # MSCI Emerging Markets mini
-    'EL': 0.01085,                 # Eurodollar NYSE LIFFE
-    'ER': 1.6111179424122348e-05,  # Russell2000 e-mini
-    'ES': 9.8765310182289478e-06,  # SP500 e-mini
-    'ET': 0.01085,                 # Ethanol
-    'EU': 0.014086628659497939,    # Eurodollar e-micro
-    'FC': 0.014442060157417558,    # Feeder Cattle
-    'FF': 0.01085,                 # 3-Day Federal Funds
-    'FI': 2.2861520347377721e-05,  # Deliverable Interest Rate Swap 5y
-    'FS': 1.9567627084601806e-05,  # Interest Rate Swap 5y
-    'FV': 0.00014038354402200122,  # US 5y
-    'GC': 1.605069260624824e-05,   # Gold
-    'HG': 0.0070410717803767089,   # Copper
-    'HO': 0.0048866813611040914,   # Heating Oil
-    'HU': 0.001112270067325556,    # Unleaded Gasoline
-    'JE': 0.01085,                 # JPY e-mini
-    'JY': 0.01085,                 # JPY
-    'LB': 5.8373507529063276e-05,  # Lumber
-    'LC': 0.020035424957041269,    # Live Cattle
-    'LH': 0.026099477041392812,    # Lean Hogs
-    'MB': 0.01085,                 # Municipal Bonds
-    'MD': 0.01085,                 # SP400 Midcap
-    'ME': 0.21354040373692387,     # MXN
-    'MG': 2.9000953735007693e-06,  # MSCI EAFE mini
-    'MI': 7.6646156858777399e-06,  # SP400 Midcap e-mini
-    'MS': 0.01085,                 # Soybean e-mini
-    'MW': 0.01085,                 # Wheat e-mini
-    'ND': 7.8710013623835107e-07,  # Nasdaq100
-    'NG': 0.0032343606858668637,   # Natural Gas
-    'NK': 8.2279089155905972e-07,  # Nikkei225
-    'NQ': 4.7536752793016705e-06,  # Nasdaq100 e-mini
-    'NZ': 0.022539417154653997,    # NZD
-    'OA': 0.006725570641761964,    # Oats
-    'PA': 0.01085,                 # Palladium
-    'PB': 0.01085,                 # Pork Bellies
-    'PL': 1.1624267129961144e-05,  # Platinum
-    'QG': 0.01085,                 # Natural Gas e-mini
-    'QM': 0.01085,                 # Crude Oil e-mini
-    'RM': 7.2526515486331453e-06,  # Russell1000 e-mini
-    'RR': 0.01085,                 # Rough Rice
-    'SB': 0.01085,                 # Sugar
-    'SF': 0.015098756663349974,    # CHF
-    'SM': 6.407001852248357e-05,   # Soybean Meal
-    'SP': 1.4645849965546278e-06,  # SP500
-    'SV': 0.00099068894059478867,  # Silver
-    'SY': 0.0020234849825514138,   # Soybean
-    'TB': 0.01085,                 # Treasury Bills
-    'TN': 6.6893273036764228e-06,  # Deliverable Interest Rate Swap 10y
-    'TS': 3.2575491621156759e-06,  # Interest Rate Swap 10y
-    'TU': 9.2486711567427209e-05,  # US 2y
-    'TY': 0.00013919556016663131,  # US 10y
-    'UB': 0.01085,                 # Ultra Tbond
-    'US': 0.00011101993420193085,  # US 30y
-    'VX': 0.00014998794671380015,  # VIX
-    'WC': 0.0031148018193107524,   # Wheat
-    'XB': 0.0049168498646483842,   # RBOB Gasoline
-    'XG': 0.01085,                 # Gold e-mini
-    'YM': 1.1167364405238235e-06,  # Dow Jones e-mini
-    'YS': 0.01085,                 # Silver e-mini
+    'AD': 0.046928040130566687,  # AUD
+    'AI': 0.046928040130566687,  # Bloomberg Commodity Index
+    'BD': 0.046928040130566687,  # Big Dow
+    'BO': 0.046928040130566687,  # Soybean Oil
+    'BP': 0.04784266952963729,   # GBP
+    'CD': 0.051117234150758695,  # CAD
+    'CL': 0.046928040130566687,  # Crude Oil
+    'CM': 0.046928040130566687,  # Corn e-mini
+    'CN': 0.046928040130566687,  # Corn
+    'DJ': 0.023125339036681979,  # Dow Jones
+    'EC': 0.048850768744160389,  # Euro FX
+    'ED': 0.046928040130566687,  # Eurodollar
+    'EE': 0.048714252127543864,  # Euro FX e-mini
+    'EI': 0.031712708439692663,  # MSCI Emerging Markets mini
+    'EL': 0.044207422018209361,  # Eurodollar NYSE LIFFE
+    'ER': 0.045367444234542968,  # Russell2000 e-mini
+    'ES': 0.04730613625075674,   # SP500 e-mini
+    'ET': 0.046928040130566687,  # Ethanol
+    'EU': 0.049750498465030997,  # Eurodollar e-micro
+    'FC': 0.046928040130566687,  # Feeder Cattle
+    'FF': 0.046928040130566687,  # 3-Day Federal Funds
+    'FI': 0.046928040130566687,  # Deliverable Interest Rate Swap 5y
+    'FS': 0.034557788010453824,  # Interest Rate Swap 5y
+    'FV': 0.046928040130566687,  # US 5y
+    'GC': 0.04893759042642172,   # Gold
+    'HG': 0.052238437060378763,  # Copper
+    'HO': 0.045122791828174927,  # Heating Oil
+    'HU': 0.017154313062463938,  # Unleaded Gasoline
+    'JE': 0.013948949613401812,  # JPY e-mini
+    'JY': 0.046928040130566687,  # JPY
+    'LB': 0.046928040130566687,  # Lumber
+    'LC': 0.046928040130566687,  # Live Cattle
+    'LH': 0.046928040130566687,  # Lean Hogs
+    'MB': 0.046928040130566687,  # Municipal Bonds
+    'MD': 0.046928040130566687,  # SP400 Midcap
+    'ME': 0.030339483847094631,  # MXN
+    'MG': 0.029579261656151684,  # MSCI EAFE mini
+    'MI': 0.046928040130566687,  # SP400 Midcap e-mini
+    'MS': 0.046928040130566687,  # Soybean e-mini
+    'MW': 0.046928040130566687,  # Wheat e-mini
+    'ND': 0.046928040130566687,  # Nasdaq100
+    'NG': 0.047892536982022171,  # Natural Gas
+    'NK': 0.046928040130566687,  # Nikkei225
+    'NQ': 0.044770801723909417,  # Nasdaq100 e-mini
+    'NZ': 0.049165039348092403,  # NZD
+    'OA': 0.046928040130566687,  # Oats
+    'PA': 0.046928040130566687,  # Palladium
+    'PB': 0.046928040130566687,  # Pork Bellies
+    'PL': 0.05458400761791686,   # Platinum
+    'QG': 0.046928040130566687,  # Natural Gas e-mini
+    'QM': 0.046928040130566687,  # Crude Oil e-mini
+    'RM': 0.037413974839673583,  # Russell1000 e-mini
+    'RR': 0.046928040130566687,  # Rough Rice
+    'SB': 0.046928040130566687,  # Sugar
+    'SF': 0.047788879925389501,  # CHF
+    'SM': 0.046928040130566687,  # Soybean Meal
+    'SP': 0.046928040130566687,  # SP500
+    'SV': 0.05269381922380148,   # Silver
+    'SY': 0.046928040130566687,  # Soybean
+    'TB': 0.046928040130566687,  # Treasury Bills
+    'TN': 0.046928040130566687,  # Deliverable Interest Rate Swap 10y
+    'TS': 0.032908878455069152,  # Interest Rate Swap 10y
+    'TU': 0.046928040130566687,  # US 2y
+    'TY': 0.046928040130566687,  # US 10y
+    'UB': 0.046928040130566687,  # Ultra Tbond
+    'US': 0.046928040130566687,  # US 30y
+    'VX': 0.046928040130566687,  # VIX
+    'WC': 0.046928040130566687,  # Wheat
+    'XB': 0.044451098475429676,  # RBOB Gasoline
+    'XG': 0.046928040130566687,  # Gold e-mini
+    'YM': 0.046928040130566687,  # Dow Jones e-mini
+    'YS': 0.046928040130566687,  # Silver e-mini
 }
 
 
@@ -418,10 +418,10 @@ class WithWindowData(object):
         return values['volume'], values['close']
 
 
-class FuturesMarketImpact(WithWindowData, FutureSlippageModel):
+class VolatilityVolumeShare(WithWindowData, FutureSlippageModel):
 
     def __init__(self, volume_limit):
-        super(FuturesMarketImpact, self).__init__()
+        super(VolatilityVolumeShare, self).__init__()
         self.volume_limit = volume_limit
 
     def process_order(self, data, order):
