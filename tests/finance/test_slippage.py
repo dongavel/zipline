@@ -16,23 +16,24 @@
 '''
 Unit tests for finance.slippage
 '''
-import datetime
 from collections import namedtuple
-
-import pytz
+import datetime
+from math import sqrt
 
 from nose_parameterized import parameterized
-
-import pandas as pd
 from pandas.tslib import normalize_date
+import pandas as pd
+import pytz
 
 from zipline.data.data_portal import DataPortal
 from zipline.finance.asset_restrictions import NoRestrictions
-from zipline.finance.blotter import Order
+from zipline.finance.order import Order
 from zipline.finance.slippage import (
     fill_price_worse_than_limit_price,
+    FuturesMarketImpact,
     VolumeContractSlippage,
     VolumeShareSlippage,
+    WithWindowData,
 )
 from zipline.protocol import DATASOURCE_TYPE, BarData
 from zipline.testing import tmp_bcolz_equity_minute_bar_reader
@@ -696,6 +697,142 @@ class VolumeSlippageTestCase(WithCreateBarData,
 
         self.assertIsNotNone(txn)
         self.assertEquals(expected_txn, txn.__dict__)
+
+
+class FuturesMarketImpactTestCase(WithCreateBarData,
+                                  WithSimParams,
+                                  WithDataPortal,
+                                  ZiplineTestCase):
+
+    TRADING_CALENDAR_STRS = ('NYSE', 'us_futures')
+    TRADING_CALENDAR_PRIMARY_CAL = 'us_futures'
+
+    @classmethod
+    def init_class_fixtures(cls):
+        super(FuturesMarketImpactTestCase, cls).init_class_fixtures()
+        cls.ASSET = cls.asset_finder.retrieve_asset(1000)
+
+    def init_instance_fixtures(self):
+        super(FuturesMarketImpactTestCase, self).init_instance_fixtures()
+
+    @classmethod
+    def make_futures_info(cls):
+        return pd.DataFrame({
+            'sid': [1000],
+            'root_symbol': ['CL'],
+            'symbol': ['CLF07'],
+            'start_date': [cls.ASSET_FINDER_EQUITY_START_DATE],
+            'end_date': [cls.ASSET_FINDER_EQUITY_END_DATE],
+            'multiplier': [500],
+            'exchange': ['CME'],
+        })
+
+    def create_order(self, asset=None, open_amount=0, limit=None, dt=None):
+        return Order(
+            dt=dt or pd.Timestamp.now(tz='utc').round('min'),
+            sid=asset or self.ASSET,
+            amount=open_amount,
+            limit=limit,
+        )
+
+    def test_calculate_impact_buy(self):
+        answer_key = [
+            # We ordered 10 contracts, but are capped at 100 * 0.05 = 5
+            (59805.500000840155, 5),
+            (59806.500000840169, 5),
+            (None, None),
+        ]
+        self._calculate_impact(self.create_order(open_amount=10), answer_key)
+
+    def test_calculate_impact_sell(self):
+        answer_key = [
+            (59805.499999159845, -5),
+            (59806.499999159831, -5),
+            (None, None),
+        ]
+        self._calculate_impact(self.create_order(open_amount=-10), answer_key)
+
+    def _calculate_impact(self, test_order, answer_key):
+        model = FuturesMarketImpact(volume_limit=0.05)
+        first_minute = pd.Timestamp('2006-03-01 11:35AM', tz='UTC')
+
+        next_3_minutes = self.trading_calendar.minutes_window(first_minute, 3)
+        remaining_shares = test_order.open_amount
+
+        for i, minute in enumerate(next_3_minutes):
+            data = self.create_bardata(simulation_dt_func=lambda: minute)
+            new_order = self.create_order(
+                open_amount=remaining_shares, dt=data.current_dt,
+            )
+            price, amount = model.process_order(data, new_order)
+
+            # Allow for a little floating point drift.
+            self.assertAlmostEqual(price, answer_key[i][0], delta=0.01)
+            self.assertEqual(amount, answer_key[i][1])
+
+            amount = amount or 0
+            if remaining_shares < 0:
+                remaining_shares = min(0, remaining_shares - amount)
+            else:
+                remaining_shares = max(0, remaining_shares - amount)
+
+    def test_impacted_price_worse_than_limit(self):
+        model = FuturesMarketImpact(volume_limit=0.05)
+
+        # Use all the same numbers from the 'calculate_impact' tests. Since the
+        # impacted price is 59805.5, which is worse than the limit price of
+        # 59800, the model should return None.
+        order = self.create_order(open_amount=10, limit=59800)
+        minute = pd.Timestamp('2006-03-01 11:35AM', tz='UTC')
+        data = self.create_bardata(simulation_dt_func=lambda: minute)
+        price, amount = model.process_order(data, order)
+
+        self.assertIsNone(price)
+        self.assertIsNone(amount)
+
+
+class WindowDataTestCase(WithCreateBarData, ZiplineTestCase):
+
+    ASSET_FINDER_EQUITY_SIDS = (1,)
+
+    def test_window_data(self):
+        session = pd.Timestamp('2006-03-01')
+        minute = self.trading_calendar.minutes_for_session(session)[1]
+        data = self.create_bardata(simulation_dt_func=lambda: minute)
+        asset = self.asset_finder.retrieve_asset(1)
+
+        mean_volume, volatility = WithWindowData()._get_window_data(
+            data, asset, window_length=20,
+        )
+
+        #                            close  volume
+        # 2006-01-31 00:00:00+00:00   29.0   119.0
+        # 2006-02-01 00:00:00+00:00   30.0   120.0
+        # 2006-02-02 00:00:00+00:00   31.0   121.0
+        # 2006-02-03 00:00:00+00:00   32.0   122.0
+        # 2006-02-06 00:00:00+00:00   33.0   123.0
+        # 2006-02-07 00:00:00+00:00   34.0   124.0
+        # 2006-02-08 00:00:00+00:00   35.0   125.0
+        # 2006-02-09 00:00:00+00:00   36.0   126.0
+        # 2006-02-10 00:00:00+00:00   37.0   127.0
+        # 2006-02-13 00:00:00+00:00   38.0   128.0
+        # 2006-02-14 00:00:00+00:00   39.0   129.0
+        # 2006-02-15 00:00:00+00:00   40.0   130.0
+        # 2006-02-16 00:00:00+00:00   41.0   131.0
+        # 2006-02-17 00:00:00+00:00   42.0   132.0
+        # 2006-02-21 00:00:00+00:00   43.0   133.0
+        # 2006-02-22 00:00:00+00:00   44.0   134.0
+        # 2006-02-23 00:00:00+00:00   45.0   135.0
+        # 2006-02-24 00:00:00+00:00   46.0   136.0
+        # 2006-02-27 00:00:00+00:00   47.0   137.0
+        # 2006-02-28 00:00:00+00:00   48.0   138.0
+
+        # Mean volume is (119 + 138) / 2 = 128.5
+        self.assertEqual(mean_volume, 128.5)
+
+        # Volatility is closes.pct_change().std() * sqrt(252)
+        reference_vol = pd.Series(range(29, 49)).pct_change().std() * sqrt(252)
+        self.assertEqual(volatility, reference_vol)
 
 
 class OrdersStopTestCase(WithSimParams,

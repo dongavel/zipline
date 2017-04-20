@@ -435,7 +435,9 @@ class FuturesMarketImpact(WithWindowData, FutureSlippageModel):
 
         eta = ROOT_SYMBOL_TO_ETA[order.asset.root_symbol]
         mean_volume, volatility = self._get_window_data(data, order.asset, 20)
-        txn_volume = min(volume * self.volume_limit, abs(order.open_amount))
+        txn_volume = int(
+            min(volume * self.volume_limit, abs(order.open_amount))
+        )
         psi = txn_volume / mean_volume
 
         market_impact = eta * volatility * math.sqrt(psi)
