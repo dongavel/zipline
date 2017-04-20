@@ -433,25 +433,34 @@ class FuturesMarketImpact(WithWindowData, FutureSlippageModel):
         if not volume:
             return None, None
 
-        eta = ROOT_SYMBOL_TO_ETA[order.asset.root_symbol]
-        mean_volume, volatility = self._get_window_data(data, order.asset, 20)
-        txn_volume = int(
-            min(volume * self.volume_limit, abs(order.open_amount))
-        )
-        psi = txn_volume / mean_volume
-
-        market_impact = eta * volatility * math.sqrt(psi)
-
         # Price to use is the average of the minute bar's open and close.
         price = np.mean([minute_data['high'], minute_data['low']])
 
-        # We divide by 10,000 because this model computes to basis points. To
-        # convert from bps to % we need to divide by 100, then again to convert
-        # from % to fraction.
-        simulated_impact = (price * market_impact) / 10000
+        eta = ROOT_SYMBOL_TO_ETA[order.asset.root_symbol]
+        mean_volume, volatility = self._get_window_data(data, order.asset, 20)
 
-        impacted_price = \
-            price + math.copysign(simulated_impact, order.direction)
+        if mean_volume == 0:
+            # If this is the first day the contract exists and there is no
+            # volume history, default to an impact of 10 bps.
+            simulated_impact = price * (10.0 / 10000)
+
+            impacted_price = \
+                price + math.copysign(simulated_impact, order.direction)
+        else:
+            txn_volume = int(
+                min(volume * self.volume_limit, abs(order.open_amount))
+            )
+            psi = txn_volume / mean_volume
+
+            market_impact = eta * volatility * math.sqrt(psi)
+
+            # We divide by 10,000 because this model computes to basis points.
+            # To convert from bps to % we need to divide by 100, then again to
+            # convert from % to fraction.
+            simulated_impact = (price * market_impact) / 10000
+
+            impacted_price = \
+                price + math.copysign(simulated_impact, order.direction)
 
         if fill_price_worse_than_limit_price(impacted_price, order):
             return None, None
