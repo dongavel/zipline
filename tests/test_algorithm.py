@@ -3642,7 +3642,7 @@ class TestFuturesAlgo(WithDataPortal, WithSimParams, ZiplineTestCase):
                 set_slippage,
                 sid,
                 slippage,
-                get_datetime
+                get_datetime,
             )
 
             def initialize(context):

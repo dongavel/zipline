@@ -671,7 +671,7 @@ class VolumeSlippageTestCase(WithCreateBarData,
                 amount=10,
                 filled=0,
                 sid=self.ASSET1000,
-            )
+            ),
         ]
 
         bar_data = self.create_bardata(
@@ -712,17 +712,14 @@ class FuturesMarketImpactTestCase(WithCreateBarData,
         super(FuturesMarketImpactTestCase, cls).init_class_fixtures()
         cls.ASSET = cls.asset_finder.retrieve_asset(1000)
 
-    def init_instance_fixtures(self):
-        super(FuturesMarketImpactTestCase, self).init_instance_fixtures()
-
     @classmethod
     def make_futures_info(cls):
         return pd.DataFrame({
             'sid': [1000],
             'root_symbol': ['CL'],
             'symbol': ['CLF07'],
-            'start_date': [cls.ASSET_FINDER_EQUITY_START_DATE],
-            'end_date': [cls.ASSET_FINDER_EQUITY_END_DATE],
+            'start_date': [cls.START_DATE],
+            'end_date': [cls.END_DATE],
             'multiplier': [500],
             'exchange': ['CME'],
         })
@@ -746,6 +743,7 @@ class FuturesMarketImpactTestCase(WithCreateBarData,
 
     def test_calculate_impact_sell(self):
         answer_key = [
+            # We ordered -10 contracts, but are capped at -(100 * 0.05) = -5
             (59805.499999159845, -5),
             (59806.499999159831, -5),
             (None, None),
