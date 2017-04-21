@@ -1763,8 +1763,7 @@ def handle_data(context, data):
     def test_batch_order_target_percent_matches_multi_order(self):
         weights = pd.Series([.3, .7])
 
-        multi_blotter = RecordBatchBlotter(self.SIM_PARAMS_DATA_FREQUENCY,
-                                           self.asset_finder)
+        multi_blotter = RecordBatchBlotter(self.SIM_PARAMS_DATA_FREQUENCY)
         multi_test_algo = TradingAlgorithm(
             script=dedent("""\
                 from collections import OrderedDict
@@ -1793,8 +1792,7 @@ def handle_data(context, data):
         multi_stats = multi_test_algo.run(self.data_portal)
         self.assertFalse(multi_blotter.order_batch_called)
 
-        batch_blotter = RecordBatchBlotter(self.SIM_PARAMS_DATA_FREQUENCY,
-                                           self.asset_finder)
+        batch_blotter = RecordBatchBlotter(self.SIM_PARAMS_DATA_FREQUENCY)
         batch_test_algo = TradingAlgorithm(
             script=dedent("""\
                 from collections import OrderedDict
@@ -1837,8 +1835,7 @@ def handle_data(context, data):
     def test_batch_order_target_percent_filters_null_orders(self):
         weights = pd.Series([1, 0])
 
-        batch_blotter = RecordBatchBlotter(self.SIM_PARAMS_DATA_FREQUENCY,
-                                           self.asset_finder)
+        batch_blotter = RecordBatchBlotter(self.SIM_PARAMS_DATA_FREQUENCY)
         batch_test_algo = TradingAlgorithm(
             script=dedent("""\
                 from collections import OrderedDict
