@@ -47,23 +47,24 @@ from zipline.data.data_portal import DataPortal
 from zipline.data.us_equity_pricing import PanelBarReader
 from zipline.errors import (
     AttachPipelineAfterInitialize,
+    CannotOrderDelistedAsset,
     HistoryInInitialize,
     NoSuchPipeline,
     OrderDuringInitialize,
+    OrderInBeforeTradingStart,
     PipelineOutputDuringInitialize,
     RegisterAccountControlPostInit,
     RegisterTradingControlPostInit,
+    ScheduleFunctionInvalidCalendar,
     SetBenchmarkOutsideInitialize,
+    SetCancelPolicyPostInit,
     SetCommissionPostInit,
     SetSlippagePostInit,
+    UnsupportedCancelPolicy,
     UnsupportedCommissionModel,
     UnsupportedDatetimeFormat,
     UnsupportedOrderParameters,
     UnsupportedSlippageModel,
-    CannotOrderDelistedAsset,
-    UnsupportedCancelPolicy,
-    SetCancelPolicyPostInit,
-    OrderInBeforeTradingStart
 )
 from zipline.finance.trading import TradingEnvironment
 from zipline.finance.blotter import Blotter
@@ -1109,12 +1110,19 @@ class TradingAlgorithm(object):
         # Check the type of the algorithm's schedule before pulling calendar
         # Note that the ExchangeTradingSchedule is currently the only
         # TradingSchedule class, so this is unlikely to be hit
-        if calendar is calendars.US_EQUITIES:
+        if calendar is None:
+            cal = self.trading_calendar
+        elif calendar is calendars.US_EQUITIES:
             cal = get_calendar('NYSE')
         elif calendar is calendars.US_FUTURES:
             cal = get_calendar('us_futures')
         else:
-            cal = self.trading_calendar
+            raise ScheduleFunctionInvalidCalendar(
+                given_calendar=calendar,
+                allowed_calendars=(
+                    '[calendars.US_EQUITIES, calendars.US_FUTURES]'
+                ),
+            )
 
         self.add_event(
             make_eventrule(date_rule, time_rule, cal, half_days),

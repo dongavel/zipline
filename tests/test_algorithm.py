@@ -54,16 +54,18 @@ from zipline.data.us_equity_pricing import (
     BcolzDailyBarWriter,
 )
 from zipline.errors import (
-    OrderDuringInitialize,
-    RegisterTradingControlPostInit,
-    TradingControlViolation,
     AccountControlViolation,
-    SymbolNotFound,
-    UnsupportedDatetimeFormat,
     CannotOrderDelistedAsset,
+    OrderDuringInitialize,
+    OrderInBeforeTradingStart,
+    RegisterTradingControlPostInit,
+    ScheduleFunctionInvalidCalendar,
     SetCancelPolicyPostInit,
+    SymbolNotFound,
+    TradingControlViolation,
     UnsupportedCancelPolicy,
-    OrderInBeforeTradingStart)
+    UnsupportedDatetimeFormat,
+)
 from zipline.api import (
     order,
     order_value,
@@ -488,6 +490,30 @@ def log_nyse_close(context, data):
             session_label = nyse.minute_to_session_label(minute)
             session_close = nyse.open_and_close_for_session(session_label)[1]
             self.assertEqual(session_close - timedelta(minutes=1), minute)
+
+        # Test that passing an invalid calendar parameter raises an error.
+        erroring_algotext = dedent(
+            """
+            from zipline.api import schedule_function
+            from zipline.utils.calendars import get_calendar
+
+            def initialize(context):
+                schedule_function(func=my_func, calendar=get_calendar('NYSE'))
+
+            def my_func(context, data):
+                pass
+            """
+        )
+
+        algo = TradingAlgorithm(
+            script=erroring_algotext,
+            sim_params=self.sim_params,
+            env=self.env,
+            trading_calendar=get_calendar('CME'),
+        )
+
+        with self.assertRaises(ScheduleFunctionInvalidCalendar):
+            algo.run(self.data_portal)
 
     def test_schedule_function(self):
         us_eastern = pytz.timezone('US/Eastern')

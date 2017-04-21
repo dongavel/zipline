@@ -545,8 +545,6 @@ def schedule_function(func, date_rule=None, time_rule=None, half_days=True, cale
         The rule for the times to execute this function.
     half_days : bool, optional
         Should this rule fire on half days?
-    calendar : Sentinel, optional
-        Calendar used to reconcile date and time rules.
 
     See Also
     --------
